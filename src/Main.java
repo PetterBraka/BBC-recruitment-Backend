@@ -1,36 +1,40 @@
-import javafx.application.Application;
-import javafx.stage.Stage;
+/**
+ * @auther Petter Vang Brakalsvalet
+ * @version 1.0 (23/02/2019)
+ */
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.net.URL;
+import javafx.application.Application;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.io.IOException;
+import javafx.stage.Stage;
 import java.util.Date;
+import javax.swing.*;
+import java.net.URL;
+import java.awt.*;
 
 public class Main extends Application {
-    private ArrayList<String> jsonData = new ArrayList<>();
-    final long startRequest = System.currentTimeMillis();
+    private final long startRequest = System.currentTimeMillis();
     private fruitDatabase fruit = new fruitDatabase();
     private String statDisplay = "display";
-    private String statTime = "load";
     private String[][] fruitData;
 
     public static void main(String[] args) {
         Application.launch(args);
     }
     @Override
-    public void start(Stage primaryStage) throws Exception {
-        jsonData = fruit.cleanJson();
+    public void start(Stage primaryStage) {
+        ArrayList<String> jsonData = fruit.cleanJson();
+        String statTime = "load";
         sendStats(startRequest, statTime);
         fruitData = fruit.buildDatabase(jsonData);
-        //fruit.printDatabase(fruitData);
-        updateScreen();
+        makeWindow();
     }
-    private void updateScreen() {
+
+    /**
+     * makeWindow function is for making a widow and and displaying the the fruit.
+     */
+    private void makeWindow() {
         sendStats(0, statDisplay);
         JFrame frame = new JFrame("Fruit list");
         frame.setSize(250, 500);
@@ -39,40 +43,44 @@ public class Main extends Application {
 
         for (String[] thisFruit : fruitData) {
             if (thisFruit[0] != null) {
-                String type = thisFruit[0].substring(0,1).toUpperCase() + thisFruit[0].substring(1);
+                String type = thisFruit[0].substring(0,1).toUpperCase() +
+                        thisFruit[0].substring(1); // This wil make the capitalize the word.
                 JButton typeFruit = new JButton(type);
                 int price = Integer.parseInt(thisFruit[1]);
                 int weight = Integer.parseInt(thisFruit[2]);
                 frame.add(typeFruit);
-                typeFruit.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        String fruitInfo = type + " Cost " +
-                                price / 100 + "," + price % 100 +
-                                "£ and weight " + weight / 1000 + "," +
-                                weight % 1000 + "kg";
-                        JFrame infoFrame = new JFrame("Fruit info");
-                        infoFrame.setSize(250, 500);
-                        infoFrame.setLocation(300,200);
-                        infoFrame.setLayout(new GridLayout(fruitData.length,0));
-                        JTextArea info = new JTextArea();
-                        info.append(fruitInfo);
-                        infoFrame.add(info, Component.CENTER_ALIGNMENT);
-                        JButton backButton = new JButton("Back");
-                        infoFrame.add(backButton, Component.BOTTOM_ALIGNMENT);
-                        backButton.addActionListener(new ActionListener() {
-                            @Override
-                            public void actionPerformed(ActionEvent e) {
-                                frame.setVisible(true);
-                                sendStats(startRequest, statDisplay);
-                                infoFrame.setVisible(false);
-                            }
-                        });
-                        infoFrame.setVisible(true);
+                /*
+                 * This will make buttons for all of the fruits.
+                 * When you push one of the buttons you will be taken to the next page,
+                 * and show info about the fruit you want.
+                 */
+                typeFruit.addActionListener(a -> {
+                    String fruitInfo = type + " Cost " +
+                            price / 100 + "," + price % 100 +
+                            "£ and weight " + weight / 1000 + "," +
+                            weight % 1000 + "kg";
+                    JFrame infoFrame = new JFrame("Fruit info");
+                    infoFrame.setSize(250, 500);
+                    infoFrame.setLocation(300,200);
+                    infoFrame.setLayout(new GridLayout(fruitData.length,0));
+                    JTextArea info = new JTextArea();
+                    info.append(fruitInfo);
+                    infoFrame.add(info, Component.CENTER_ALIGNMENT);
+                    JButton backButton = new JButton("Back");
+                    infoFrame.add(backButton, Component.BOTTOM_ALIGNMENT);
+                    /*
+                      This will make a back button so that you can go
+                      to the main list and chose a new item.
+                     */
+                    backButton.addActionListener(b -> {
+                        frame.setVisible(true);
                         sendStats(startRequest, statDisplay);
-                        frame.setVisible(false);
-                        infoFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                    }
+                        infoFrame.setVisible(false);
+                    });
+                    infoFrame.setVisible(true);
+                    sendStats(startRequest, statDisplay);
+                    frame.setVisible(false);
+                    infoFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 });
             }
         }

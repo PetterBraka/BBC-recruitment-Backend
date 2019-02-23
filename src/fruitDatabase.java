@@ -1,16 +1,25 @@
+/**
+ * @auther Petter Vang Brakalsvalet
+ * @version 1.0 (23/02/2019)
+ */
 
-
+import java.net.HttpURLConnection;
+import java.io.InputStreamReader;
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.net.URL;
 
 
-public class fruitDatabase{
+public class fruitDatabase {
 
+    /**
+     * This will make a 2D array of the fruit.
+     *
+     * @param data IS the JSON data loaded.
+     * @return a 2D array of the with the data organised
+     */
     String[][] buildDatabase(ArrayList<String> data) {
         String[][] database = new String[10][3];
         int row = 0;
@@ -35,10 +44,15 @@ public class fruitDatabase{
         return database;
     }
 
-    void printDatabase(String[][] database){
+    /**
+     * This will print out the whole data base in a human readable format.
+     *
+     * @param database a 2D string array.
+     */
+    public void printDatabase(String[][] database) {
         for (String[] x : database) {
             for (String y : x) {
-                if (y == null){
+                if (y == null) {
                     break;
                 } else {
                     System.out.print(y + " ");
@@ -48,8 +62,14 @@ public class fruitDatabase{
         }
     }
 
+    /**
+     * This will clean the JSON file.
+     *
+     * @return an Array list with the data cleaned.
+     */
     ArrayList<String> cleanJson() {
         String jsonString = null;
+        String[] jsonBuffer;
         try {
             jsonString = getJson();
         } catch (IOException e) {
@@ -63,13 +83,20 @@ public class fruitDatabase{
             jsonString = jsonString.replace("\"", "");
             jsonString = jsonString.replace("}", "");
             jsonString = jsonString.replace("]", "");
+            jsonString = jsonString.replaceFirst(":", "");
+            jsonBuffer = jsonString.split(",");
+            return new ArrayList<>(Arrays.asList(jsonBuffer));
+        } else {
+            return new ArrayList<>();
         }
-        jsonString = jsonString.replaceFirst(":", "");
-        String[] jsonBuffer = jsonString.split(",");
-
-        return new ArrayList<>(Arrays.asList(jsonBuffer));
     }
 
+    /**
+     * This will get the JSON file from the web-side.
+     *
+     * @return this will return a string with the whole JSON file
+     * @throws IOException gets thrown if it can'c get contact with the URL.
+     */
     private String getJson() throws IOException {
         URL url = new URL("https://raw.githubusercontent.com/fmtvp/recruit-test-data/master/data.json");
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
@@ -84,5 +111,4 @@ public class fruitDatabase{
         con.disconnect();
         return content.toString();
     }
-
 }
